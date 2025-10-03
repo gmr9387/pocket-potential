@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
+import NotificationBell from "./NotificationBell";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -30,9 +31,15 @@ const Header = () => {
   const navLinks = [
     { to: "/", label: "Home" },
     { to: "/programs", label: "Programs" },
+    { to: "/community", label: "Community" },
     { to: "/how-it-works", label: "How It Works" },
     { to: "/faq", label: "FAQ" },
   ];
+
+  const userNavLinks = user ? [
+    ...navLinks,
+    { to: "/documents", label: "Documents" },
+  ] : navLinks;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -47,7 +54,7 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
+          {userNavLinks.map((link) => (
             <Link
               key={link.to}
               to={link.to}
@@ -62,6 +69,7 @@ const Header = () => {
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <>
+              <NotificationBell />
               <Button
                 variant="ghost"
                 onClick={() => navigate("/dashboard")}
@@ -101,7 +109,7 @@ const Header = () => {
       {isMenuOpen && (
         <div className="md:hidden border-t border-border bg-background animate-fade-in">
           <div className="container mx-auto px-4 py-4 space-y-3">
-            {navLinks.map((link) => (
+            {userNavLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}

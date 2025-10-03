@@ -1,0 +1,162 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
+
+const questions = [
+  {
+    id: "household",
+    question: "How many people live in your household?",
+    options: ["1", "2", "3-4", "5 or more"]
+  },
+  {
+    id: "income",
+    question: "What is your annual household income?",
+    options: ["Under $25,000", "$25,000 - $50,000", "$50,000 - $75,000", "Over $75,000"]
+  },
+  {
+    id: "situation",
+    question: "Which best describes your current situation?",
+    options: ["Working full-time", "Working part-time", "Unemployed", "Retired", "Disabled", "Student"]
+  }
+];
+
+const QuizSection = () => {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [showResults, setShowResults] = useState(false);
+
+  const handleNext = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      setShowResults(true);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  };
+
+  const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+  if (showResults) {
+    return (
+      <section className="py-20 px-4 bg-muted/30">
+        <div className="container mx-auto max-w-4xl text-center animate-scale-in">
+          <div className="inline-flex items-center gap-2 bg-accent/20 text-accent-foreground px-4 py-2 rounded-full mb-6">
+            <Sparkles className="w-4 h-4" />
+            <span className="text-sm font-medium">Analysis complete!</span>
+          </div>
+          <h2 className="text-4xl font-bold mb-4">
+            You may qualify for{" "}
+            <span className="gradient-primary bg-clip-text text-transparent">
+              7 programs
+            </span>
+          </h2>
+          <p className="text-xl text-muted-foreground mb-8">
+            Total estimated value: <span className="text-2xl font-bold text-foreground">$8,400/year</span>
+          </p>
+          <Button size="xl" variant="gradient">
+            View your matches
+            <ArrowRight className="w-5 h-5" />
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
+  const currentQ = questions[currentQuestion];
+
+  return (
+    <section className="py-20 px-4 bg-muted/30">
+      <div className="container mx-auto max-w-2xl">
+        <div className="text-center mb-8 animate-fade-in">
+          <h2 className="text-3xl md:text-4xl font-bold mb-3">
+            Find your benefits in{" "}
+            <span className="gradient-primary bg-clip-text text-transparent">
+              2 minutes
+            </span>
+          </h2>
+          <p className="text-muted-foreground">
+            Answer a few simple questions to discover programs designed for you
+          </p>
+        </div>
+
+        {/* Progress bar */}
+        <div className="mb-8">
+          <div className="flex justify-between text-sm text-muted-foreground mb-2">
+            <span>Question {currentQuestion + 1} of {questions.length}</span>
+            <span>{Math.round(progress)}% complete</span>
+          </div>
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
+            <div 
+              className="h-full gradient-primary transition-all duration-500 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Question card */}
+        <Card className="p-8 shadow-medium animate-scale-in">
+          <h3 className="text-2xl font-bold mb-6">{currentQ.question}</h3>
+          
+          <RadioGroup 
+            value={answers[currentQ.id] || ""}
+            onValueChange={(value) => setAnswers({ ...answers, [currentQ.id]: value })}
+            className="space-y-3"
+          >
+            {currentQ.options.map((option) => (
+              <div
+                key={option}
+                className="flex items-center space-x-3 p-4 rounded-xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all cursor-pointer"
+              >
+                <RadioGroupItem value={option} id={option} />
+                <Label 
+                  htmlFor={option} 
+                  className="flex-grow cursor-pointer font-medium"
+                >
+                  {option}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
+
+          <div className="flex gap-3 mt-8">
+            {currentQuestion > 0 && (
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                size="lg"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+            )}
+            <Button
+              onClick={handleNext}
+              disabled={!answers[currentQ.id]}
+              size="lg"
+              className="flex-grow"
+              variant="gradient"
+            >
+              {currentQuestion === questions.length - 1 ? "See my results" : "Next question"}
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </Card>
+
+        {/* Trust indicators */}
+        <div className="text-center mt-6 text-sm text-muted-foreground">
+          <p>🔒 Your information is secure and confidential</p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default QuizSection;

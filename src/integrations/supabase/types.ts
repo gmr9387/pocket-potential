@@ -14,16 +14,239 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          application_data: Json | null
+          created_at: string
+          id: string
+          notes: string | null
+          program_id: string
+          reviewed_at: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_data?: Json | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          program_id: string
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_data?: Json | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          program_id?: string
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          application_id: string | null
+          created_at: string
+          document_category: string | null
+          file_name: string
+          file_path: string
+          file_size: number | null
+          file_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string
+          document_category?: string | null
+          file_name: string
+          file_path: string
+          file_size?: number | null
+          file_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string
+          document_category?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number | null
+          file_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      programs: {
+        Row: {
+          amount: string
+          category: string
+          created_at: string
+          description: string
+          eligibility_criteria: Json | null
+          id: string
+          is_active: boolean | null
+          match_score: number | null
+          requirements: Json | null
+          timeline: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          amount: string
+          category: string
+          created_at?: string
+          description: string
+          eligibility_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          match_score?: number | null
+          requirements?: Json | null
+          timeline: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: string
+          category?: string
+          created_at?: string
+          description?: string
+          eligibility_criteria?: Json | null
+          id?: string
+          is_active?: boolean | null
+          match_score?: number | null
+          requirements?: Json | null
+          timeline?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quiz_responses: {
+        Row: {
+          created_at: string
+          estimated_value: number | null
+          id: string
+          matched_programs: Json | null
+          responses: Json
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          matched_programs?: Json | null
+          responses?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          matched_programs?: Json | null
+          responses?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      application_status:
+        | "draft"
+        | "submitted"
+        | "in_review"
+        | "approved"
+        | "denied"
+        | "expired"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +373,16 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      application_status: [
+        "draft",
+        "submitted",
+        "in_review",
+        "approved",
+        "denied",
+        "expired",
+      ],
+    },
   },
 } as const

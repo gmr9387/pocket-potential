@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowRight, ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowRight, ArrowLeft } from "lucide-react";
 
 const questions = [
   {
@@ -20,19 +21,66 @@ const questions = [
     id: "situation",
     question: "Which best describes your current situation?",
     options: ["Working full-time", "Working part-time", "Unemployed", "Retired", "Disabled", "Student"]
+  },
+  {
+    id: "children",
+    question: "Do you have children under 18?",
+    options: ["Yes", "No"]
+  },
+  {
+    id: "housing",
+    question: "What is your housing situation?",
+    options: ["Own home", "Rent", "Living with family/friends", "Homeless"]
+  },
+  {
+    id: "health",
+    question: "Do you have health insurance?",
+    options: ["Yes, through employer", "Yes, through government program", "No", "Not sure"]
+  },
+  {
+    id: "food",
+    question: "In the past month, did you ever worry about running out of food?",
+    options: ["Often", "Sometimes", "Rarely", "Never"]
+  },
+  {
+    id: "utilities",
+    question: "Do you have difficulty paying utility bills?",
+    options: ["Often", "Sometimes", "Rarely", "Never"]
+  },
+  {
+    id: "transportation",
+    question: "Do you have reliable transportation?",
+    options: ["Own vehicle", "Public transit", "Depend on others", "No reliable transportation"]
+  },
+  {
+    id: "age",
+    question: "What is your age range?",
+    options: ["Under 25", "25-40", "41-59", "60+"]
+  },
+  {
+    id: "pregnant",
+    question: "Are you or a household member pregnant?",
+    options: ["Yes", "No"]
+  },
+  {
+    id: "veteran",
+    question: "Are you or anyone in your household a veteran?",
+    options: ["Yes", "No"]
   }
 ];
 
 const QuizSection = () => {
+  const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [showResults, setShowResults] = useState(false);
 
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      setShowResults(true);
+      // Save to localStorage and navigate to results
+      localStorage.setItem("quizAnswers", JSON.stringify(answers));
+      navigate("/results");
     }
   };
 
@@ -43,33 +91,6 @@ const QuizSection = () => {
   };
 
   const progress = ((currentQuestion + 1) / questions.length) * 100;
-
-  if (showResults) {
-    return (
-      <section className="py-20 px-4 bg-muted/30">
-        <div className="container mx-auto max-w-4xl text-center animate-scale-in">
-          <div className="inline-flex items-center gap-2 bg-accent/20 text-accent-foreground px-4 py-2 rounded-full mb-6">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-medium">Analysis complete!</span>
-          </div>
-          <h2 className="text-4xl font-bold mb-4">
-            You may qualify for{" "}
-            <span className="gradient-primary bg-clip-text text-transparent">
-              7 programs
-            </span>
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Total estimated value: <span className="text-2xl font-bold text-foreground">$8,400/year</span>
-          </p>
-          <Button size="xl" variant="gradient">
-            View your matches
-            <ArrowRight className="w-5 h-5" />
-          </Button>
-        </div>
-      </section>
-    );
-  }
-
   const currentQ = questions[currentQuestion];
 
   return (

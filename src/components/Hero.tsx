@@ -44,7 +44,7 @@ const Hero = () => {
             <div className="space-y-3">
               {[
                 "Free personalized matching in under 2 minutes",
-                "160+ federal and state programs",
+                "146+ federal and state programs",
                 "Secure document storage and tracking"
               ].map((benefit, i) => (
                 <div key={i} className="flex items-start gap-3 animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>

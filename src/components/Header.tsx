@@ -72,10 +72,13 @@ const Header = () => {
               <NotificationBell />
               <Button
                 variant="ghost"
-                onClick={() => navigate("/dashboard")}
+                onClick={() => navigate("/profile")}
                 className="gap-2"
               >
                 <User className="w-4 h-4" />
+                Profile
+              </Button>
+              <Button variant="outline" onClick={() => navigate("/dashboard")}>
                 Dashboard
               </Button>
               <Button variant="outline" onClick={handleSignOut} className="gap-2">
@@ -126,11 +129,21 @@ const Header = () => {
                     variant="ghost"
                     className="w-full justify-start gap-2"
                     onClick={() => {
-                      navigate("/dashboard");
+                      navigate("/profile");
                       setIsMenuOpen(false);
                     }}
                   >
                     <User className="w-4 h-4" />
+                    Profile
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2"
+                    onClick={() => {
+                      navigate("/dashboard");
+                      setIsMenuOpen(false);
+                    }}
+                  >
                     Dashboard
                   </Button>
                   <Button

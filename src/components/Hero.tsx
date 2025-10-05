@@ -56,11 +56,23 @@ const Hero = () => {
 
             {/* CTA buttons */}
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <Button size="xl" variant="gradient" className="group">
+              <Button 
+                size="xl" 
+                variant="gradient" 
+                className="group"
+                onClick={() => {
+                  const quizSection = document.getElementById('quiz-section');
+                  quizSection?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
                 Start finding benefits
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button size="xl" variant="outline">
+              <Button 
+                size="xl" 
+                variant="outline"
+                onClick={() => window.location.href = '/how-it-works'}
+              >
                 See how it works
               </Button>
             </div>

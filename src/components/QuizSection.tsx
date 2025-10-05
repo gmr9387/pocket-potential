@@ -94,7 +94,7 @@ const QuizSection = () => {
   const currentQ = questions[currentQuestion];
 
   return (
-    <section className="py-20 px-4 bg-muted/30">
+    <section id="quiz-section" className="py-20 px-4 bg-muted/30">
       <div className="container mx-auto max-w-2xl">
         <div className="text-center mb-8 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold mb-3">

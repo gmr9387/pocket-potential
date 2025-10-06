@@ -6,9 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { CheckCircle, XCircle, Users, FileText, TrendingUp } from "lucide-react";
+import { CheckCircle, XCircle, Users, FileText, TrendingUp, Plus, Pencil, Trash2, Shield } from "lucide-react";
 
 interface Application {
   id: string;
@@ -26,11 +32,41 @@ interface SuccessStory {
   created_at: string;
 }
 
+interface Program {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  amount: string;
+  timeline: string;
+  is_active: boolean;
+}
+
+interface UserProfile {
+  id: string;
+  email: string;
+  full_name: string | null;
+}
+
+interface UserRole {
+  id: string;
+  user_id: string;
+  role: string;
+  profiles?: UserProfile;
+}
+
 const AdminDashboard = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [applications, setApplications] = useState<Application[]>([]);
   const [stories, setStories] = useState<SuccessStory[]>([]);
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [editingProgram, setEditingProgram] = useState<Program | null>(null);
+  const [programDialogOpen, setProgramDialogOpen] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState("");
+  const [newUserRole, setNewUserRole] = useState<"admin" | "moderator" | "user">("user");
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -77,8 +113,32 @@ const AdminDashboard = () => {
       .select("*")
       .order("created_at", { ascending: false });
 
+    const { data: programsData } = await supabase
+      .from("programs")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    const { data: rolesData } = await supabase
+      .from("user_roles")
+      .select("*")
+      .order("role", { ascending: true });
+
+    const { data: profilesData } = await supabase
+      .from("profiles")
+      .select("id, email, full_name");
+
     if (appsData) setApplications(appsData);
     if (storiesData) setStories(storiesData);
+    if (programsData) setPrograms(programsData);
+    if (rolesData) {
+      // Match profiles with roles
+      const rolesWithProfiles = rolesData.map(role => ({
+        ...role,
+        profiles: profilesData?.find(p => p.id === role.user_id)
+      }));
+      setUserRoles(rolesWithProfiles);
+    }
+    if (profilesData) setProfiles(profilesData);
   };
 
   const updateApplicationStatus = async (
@@ -126,6 +186,135 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSaveProgram = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    
+    const programData = {
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
+      category: formData.get("category") as string,
+      amount: formData.get("amount") as string,
+      timeline: formData.get("timeline") as string,
+      is_active: formData.get("is_active") === "true",
+    };
+
+    let error;
+    if (editingProgram) {
+      ({ error } = await supabase
+        .from("programs")
+        .update(programData)
+        .eq("id", editingProgram.id));
+    } else {
+      ({ error } = await supabase
+        .from("programs")
+        .insert([programData]));
+    }
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save program",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: editingProgram ? "Program updated" : "Program created",
+      });
+      setProgramDialogOpen(false);
+      setEditingProgram(null);
+      fetchData();
+    }
+  };
+
+  const handleDeleteProgram = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this program?")) return;
+
+    const { error } = await supabase
+      .from("programs")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete program",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Program deleted",
+      });
+      fetchData();
+    }
+  };
+
+  const handleAssignRole = async () => {
+    if (!newUserEmail) {
+      toast({
+        title: "Error",
+        description: "Please enter an email",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const profile = profiles.find(p => p.email === newUserEmail);
+    if (!profile) {
+      toast({
+        title: "Error",
+        description: "User not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { error } = await supabase
+      .from("user_roles")
+      .insert([{ user_id: profile.id, role: newUserRole }]);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message.includes("duplicate") ? "User already has this role" : "Failed to assign role",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Role assigned successfully",
+      });
+      setNewUserEmail("");
+      setNewUserRole("user");
+      fetchData();
+    }
+  };
+
+  const handleRemoveRole = async (roleId: string) => {
+    if (!confirm("Are you sure you want to remove this role?")) return;
+
+    const { error } = await supabase
+      .from("user_roles")
+      .delete()
+      .eq("id", roleId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to remove role",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Role removed",
+      });
+      fetchData();
+    }
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -141,7 +330,7 @@ const AdminDashboard = () => {
         <div className="max-w-6xl mx-auto">
           <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
 
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          <div className="grid md:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
@@ -170,7 +359,17 @@ const AdminDashboard = () => {
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">8</div>
+                <div className="text-2xl font-bold">{programs.filter(p => p.is_active).length}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+                <Shield className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{profiles.length}</div>
               </CardContent>
             </Card>
           </div>
@@ -179,6 +378,8 @@ const AdminDashboard = () => {
             <TabsList>
               <TabsTrigger value="applications">Applications</TabsTrigger>
               <TabsTrigger value="stories">Success Stories</TabsTrigger>
+              <TabsTrigger value="programs">Programs</TabsTrigger>
+              <TabsTrigger value="users">User Roles</TabsTrigger>
             </TabsList>
 
             <TabsContent value="applications" className="space-y-4">
@@ -251,6 +452,212 @@ const AdminDashboard = () => {
                   </CardContent>
                 </Card>
               ))}
+            </TabsContent>
+
+            <TabsContent value="programs" className="space-y-4">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Manage Programs</h2>
+                <Dialog open={programDialogOpen} onOpenChange={setProgramDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button onClick={() => setEditingProgram(null)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Program
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>{editingProgram ? "Edit Program" : "Add New Program"}</DialogTitle>
+                      <DialogDescription>
+                        {editingProgram ? "Update program details" : "Create a new benefit program"}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleSaveProgram} className="space-y-4">
+                      <div>
+                        <Label htmlFor="title">Title</Label>
+                        <Input
+                          id="title"
+                          name="title"
+                          defaultValue={editingProgram?.title}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          name="description"
+                          defaultValue={editingProgram?.description}
+                          rows={4}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="category">Category</Label>
+                        <Input
+                          id="category"
+                          name="category"
+                          defaultValue={editingProgram?.category}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="amount">Amount</Label>
+                        <Input
+                          id="amount"
+                          name="amount"
+                          defaultValue={editingProgram?.amount}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="timeline">Timeline</Label>
+                        <Input
+                          id="timeline"
+                          name="timeline"
+                          defaultValue={editingProgram?.timeline}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="is_active">Status</Label>
+                        <Select name="is_active" defaultValue={editingProgram?.is_active ? "true" : "false"}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="true">Active</SelectItem>
+                            <SelectItem value="false">Inactive</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button type="submit">Save Program</Button>
+                        <Button type="button" variant="outline" onClick={() => setProgramDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              <div className="grid gap-4">
+                {programs.map((program) => (
+                  <Card key={program.id}>
+                    <CardHeader>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <CardTitle>{program.title}</CardTitle>
+                          <CardDescription>{program.category} • {program.amount}</CardDescription>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge variant={program.is_active ? "default" : "secondary"}>
+                            {program.is_active ? "Active" : "Inactive"}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingProgram(program);
+                              setProgramDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteProgram(program.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="line-clamp-2">{program.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="users" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assign User Role</CardTitle>
+                  <CardDescription>Grant admin or moderator access to users</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-4">
+                    <div className="flex-1">
+                      <Label htmlFor="user-email">User Email</Label>
+                      <Input
+                        id="user-email"
+                        placeholder="user@example.com"
+                        value={newUserEmail}
+                        onChange={(e) => setNewUserEmail(e.target.value)}
+                      />
+                    </div>
+                    <div className="w-40">
+                      <Label htmlFor="role">Role</Label>
+                      <Select value={newUserRole} onValueChange={(value: any) => setNewUserRole(value)}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="moderator">Moderator</SelectItem>
+                          <SelectItem value="admin">Admin</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-end">
+                      <Button onClick={handleAssignRole}>Assign Role</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Current User Roles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {userRoles.map((userRole) => (
+                        <TableRow key={userRole.id}>
+                          <TableCell>{userRole.profiles?.full_name || "N/A"}</TableCell>
+                          <TableCell>{userRole.profiles?.email}</TableCell>
+                          <TableCell>
+                            <Badge variant={userRole.role === "admin" ? "default" : "secondary"}>
+                              {userRole.role}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleRemoveRole(userRole.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </div>

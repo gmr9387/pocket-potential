@@ -24,7 +24,7 @@ const Hero = () => {
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight">
                 Billions in aid go{" "}
-                <span className="gradient-primary bg-clip-text text-transparent">
+                <span className="text-gradient-primary">
                   unclaimed
                 </span>
                 .
@@ -98,7 +98,7 @@ const Hero = () => {
               />
               {/* Floating stat card */}
               <div className="absolute bottom-8 left-8 bg-card/95 backdrop-blur-sm rounded-2xl p-6 shadow-large border border-border/50 animate-fade-in-up">
-                <div className="text-4xl font-bold gradient-primary bg-clip-text text-transparent">
+                <div className="text-4xl font-bold text-gradient-primary">
                   $8,400
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">

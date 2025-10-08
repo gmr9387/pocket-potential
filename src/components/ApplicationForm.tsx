@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
+import { trackEvent } from "@/lib/analytics";
 
 const applicationSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -39,6 +40,7 @@ const ApplicationForm = ({ programId, programTitle, onSuccess, onCancel }: Appli
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    trackEvent('application_submitted', { program_id: programId });
     
     // Validate form
     try {

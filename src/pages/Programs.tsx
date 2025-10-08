@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Search, Filter } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ProgramCardSkeleton } from "@/components/LoadingSkeleton";
+import { trackPageView, trackEvent } from "@/lib/analytics";
 
 interface Program {
   id: string;
@@ -41,7 +43,12 @@ const Programs = () => {
 
   useEffect(() => {
     fetchPrograms();
+    trackPageView('programs');
   }, []);
+
+  const handleProgramView = (programId: string) => {
+    trackEvent('program_viewed', { program_id: programId });
+  };
 
   useEffect(() => {
     filterPrograms();
@@ -139,8 +146,10 @@ const Programs = () => {
 
             {/* Program Grid */}
             {loading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading programs...</p>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <ProgramCardSkeleton />
+                <ProgramCardSkeleton />
+                <ProgramCardSkeleton />
               </div>
             ) : filteredPrograms.length === 0 ? (
               <div className="text-center py-12">
@@ -154,6 +163,7 @@ const Programs = () => {
                     key={program.id}
                     className="animate-fade-in"
                     style={{ animationDelay: `${index * 50}ms` }}
+                    onClick={() => trackEvent('program_viewed', { program_id: program.id })}
                   >
                     <ProgramCard
                       title={program.title}

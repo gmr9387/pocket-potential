@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowRight, ArrowLeft } from "lucide-react";
+import { trackEvent } from "@/lib/analytics";
 
 const questions = [
   {
@@ -73,11 +74,18 @@ const QuizSection = () => {
   const navigate = useNavigate();
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [quizStarted, setQuizStarted] = useState(false);
+
+  const startQuiz = () => {
+    setQuizStarted(true);
+    trackEvent('quiz_started');
+  };
 
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
+      trackEvent('quiz_completed');
       // Save to localStorage and navigate to results
       localStorage.setItem("quizAnswers", JSON.stringify(answers));
       navigate("/results");

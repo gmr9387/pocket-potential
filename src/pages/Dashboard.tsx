@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { DashboardSkeleton } from "@/components/LoadingSkeleton";
+import { trackPageView } from "@/lib/analytics";
 import {
   FileText,
   CheckCircle2,
@@ -50,6 +52,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     checkAuth();
+    trackPageView('dashboard');
   }, []);
 
   const checkAuth = async () => {
@@ -201,9 +204,7 @@ const Dashboard = () => {
             </div>
 
             {loading ? (
-              <Card className="p-12 text-center shadow-soft">
-                <p className="text-muted-foreground">Loading applications...</p>
-              </Card>
+              <DashboardSkeleton />
             ) : applications.length === 0 ? (
               <Card className="p-12 text-center shadow-soft">
                 <FileText className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />

@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Heart, BookOpen, Star } from "lucide-react";
+import { StoryCardSkeleton } from "@/components/LoadingSkeleton";
+import { trackPageView, trackEvent } from "@/lib/analytics";
 
 interface SuccessStory {
   id: string;
@@ -33,6 +35,7 @@ const Community = () => {
   const [stories, setStories] = useState<SuccessStory[]>([]);
   const [resources, setResources] = useState<Resource[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [storyForm, setStoryForm] = useState({
     title: "",
     content: "",
@@ -44,6 +47,7 @@ const Community = () => {
   useEffect(() => {
     fetchStories();
     fetchResources();
+    trackPageView('community');
   }, []);
 
   const fetchStories = async () => {
@@ -56,6 +60,7 @@ const Community = () => {
     if (!error && data) {
       setStories(data);
     }
+    setLoading(false);
   };
 
   const fetchResources = async () => {
@@ -72,6 +77,7 @@ const Community = () => {
 
   const submitStory = async (e: React.FormEvent) => {
     e.preventDefault();
+    trackEvent('story_shared');
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
@@ -130,8 +136,14 @@ const Community = () => {
             </TabsList>
 
             <TabsContent value="stories" className="space-y-6">
-              <div className="grid gap-6">
-                {stories.length === 0 ? (
+              {loading ? (
+                <div className="space-y-6">
+                  <StoryCardSkeleton />
+                  <StoryCardSkeleton />
+                </div>
+              ) : (
+                <div className="grid gap-6">
+                  {stories.length === 0 ? (
                   <Card>
                     <CardContent className="py-8 text-center text-muted-foreground">
                       No success stories yet. Be the first to share!
@@ -164,8 +176,9 @@ const Community = () => {
                       </CardContent>
                     </Card>
                   ))
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </TabsContent>
 
             <TabsContent value="resources" className="space-y-6">

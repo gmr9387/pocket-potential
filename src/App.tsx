@@ -16,6 +16,7 @@ import Community from "./pages/Community";
 import AdminDashboard from "./pages/AdminDashboard";
 import Profile from "./pages/Profile";
 import Bootstrap from "./pages/Bootstrap";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/community" element={<Community />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/bootstrap" element={<Bootstrap />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

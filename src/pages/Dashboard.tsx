@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardSkeleton } from "@/components/LoadingSkeleton";
 import { trackPageView } from "@/lib/analytics";
+import { exportApplicationsToPDF, exportSingleApplicationToPDF } from "@/lib/pdfExport";
 import {
   FileText,
   CheckCircle2,
@@ -16,6 +17,7 @@ import {
   AlertCircle,
   TrendingUp,
   Plus,
+  Download,
 } from "lucide-react";
 
 interface Application {
@@ -113,6 +115,25 @@ const Dashboard = () => {
     return (stats.approved / stats.total) * 100;
   };
 
+  const handleExportAll = () => {
+    const userName = user?.user_metadata?.full_name || 'User';
+    exportApplicationsToPDF(applications, userName);
+    toast({
+      title: "PDF Downloaded",
+      description: "Your applications have been exported successfully.",
+    });
+  };
+
+  const handleExportSingle = (application: Application) => {
+    const userName = user?.user_metadata?.full_name || 'User';
+    const userEmail = user?.email || '';
+    exportSingleApplicationToPDF(application, userName, userEmail);
+    toast({
+      title: "PDF Downloaded",
+      description: "Application exported successfully.",
+    });
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -195,12 +216,20 @@ const Dashboard = () => {
 
           {/* Applications List */}
           <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between flex-wrap gap-3">
               <h2 className="text-2xl font-bold">Your Applications</h2>
-              <Button variant="gradient" onClick={() => navigate("/programs")}>
-                <Plus className="w-4 h-4 mr-2" />
-                New Application
-              </Button>
+              <div className="flex gap-2">
+                {applications.length > 0 && (
+                  <Button variant="outline" onClick={handleExportAll}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Export All as PDF
+                  </Button>
+                )}
+                <Button variant="gradient" onClick={() => navigate("/programs")}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  New Application
+                </Button>
+              </div>
             </div>
 
             {loading ? (
@@ -250,7 +279,17 @@ const Dashboard = () => {
                             </span>
                           </div>
                         </div>
-                        <Button variant="ghost">View Details</Button>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleExportSingle(app)}
+                          >
+                            <Download className="w-4 h-4 mr-1" />
+                            PDF
+                          </Button>
+                          <Button variant="ghost">View Details</Button>
+                        </div>
                       </div>
                     </Card>
                   );

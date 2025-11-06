@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProgramCard from "@/components/ProgramCard";
+import ProgramRecommendations from "@/components/ProgramRecommendations";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Filter } from "lucide-react";
@@ -31,8 +33,10 @@ const categories = [
 ];
 
 const Programs = () => {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const categoryParam = searchParams.get("category");
+  const [user, setUser] = useState<any>(null);
   
   const [programs, setPrograms] = useState<Program[]>([]);
   const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
@@ -40,6 +44,12 @@ const Programs = () => {
   const [selectedCategory, setSelectedCategory] = useState(categoryParam || "all");
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+  }, []);
 
   useEffect(() => {
     fetchPrograms();
@@ -97,6 +107,8 @@ const Programs = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
+        {user && <ProgramRecommendations />}
+        
         {/* Hero */}
         <section className="py-16 px-4 bg-gradient-to-br from-primary/5 via-secondary/5 to-background">
           <div className="container mx-auto max-w-4xl text-center">

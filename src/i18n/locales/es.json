@@ -1,0 +1,67 @@
+{
+  "common": {
+    "home": "Inicio",
+    "programs": "Programas",
+    "community": "Comunidad",
+    "howItWorks": "Cómo Funciona",
+    "faq": "Preguntas Frecuentes",
+    "documents": "Documentos",
+    "signIn": "Iniciar Sesión",
+    "signOut": "Cerrar Sesión",
+    "getStarted": "Comenzar",
+    "dashboard": "Panel",
+    "profile": "Perfil",
+    "loading": "Cargando...",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "apply": "Aplicar"
+  },
+  "hero": {
+    "title": "Descubra Los Beneficios Para Los Que Califica",
+    "subtitle": "Conéctese con más de 160 programas de asistencia gubernamental en minutos",
+    "cta": "Encontrar Mis Beneficios"
+  },
+  "programs": {
+    "title": "Explorar Todos Los Programas",
+    "subtitle": "Explore más de 160 programas de asistencia gubernamental disponibles para usted",
+    "searchPlaceholder": "Buscar programas...",
+    "allPrograms": "Todos Los Programas",
+    "foodNutrition": "Alimentación y Nutrición",
+    "familySupport": "Apoyo Familiar",
+    "housingUtilities": "Vivienda y Servicios Públicos",
+    "healthcare": "Atención Médica",
+    "taxBenefits": "Beneficios Fiscales",
+    "showing": "Mostrando",
+    "program": "programa",
+    "programs": "programas",
+    "noPrograms": "No se encontraron programas",
+    "adjustFilters": "Intente ajustar su búsqueda o filtros",
+    "recommendations": "Recomendado Para Usted",
+    "recommendationsDesc": "Basado en su perfil y necesidades"
+  },
+  "profile": {
+    "title": "Configuración Del Perfil",
+    "subtitle": "Administre la información y preferencias de su cuenta",
+    "fullName": "Nombre Completo",
+    "email": "Correo Electrónico",
+    "phone": "Número de Teléfono (Opcional)",
+    "saveChanges": "Guardar Cambios",
+    "saving": "Guardando...",
+    "accountActions": "Acciones de Cuenta",
+    "updateSuccess": "Perfil actualizado",
+    "updateSuccessDesc": "Su perfil se ha actualizado correctamente.",
+    "loadError": "Error al cargar el perfil",
+    "updateError": "Error al actualizar el perfil"
+  },
+  "dashboard": {
+    "title": "Mis Solicitudes",
+    "applications": "Solicitudes",
+    "exportAll": "Exportar Todo como PDF",
+    "noApplications": "Aún no hay solicitudes",
+    "getStarted": "Comience explorando los programas disponibles"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "common": {
+    "home": "Home",
+    "programs": "Programs",
+    "community": "Community",
+    "howItWorks": "How It Works",
+    "faq": "FAQ",
+    "documents": "Documents",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "getStarted": "Get Started",
+    "dashboard": "Dashboard",
+    "profile": "Profile",
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "apply": "Apply"
+  },
+  "hero": {
+    "title": "Discover Benefits You're Eligible For",
+    "subtitle": "Connect with 160+ government assistance programs in minutes",
+    "cta": "Find My Benefits"
+  },
+  "programs": {
+    "title": "Browse All Programs",
+    "subtitle": "Explore 160+ government assistance programs available to you",
+    "searchPlaceholder": "Search programs...",
+    "allPrograms": "All Programs",
+    "foodNutrition": "Food & Nutrition",
+    "familySupport": "Family Support",
+    "housingUtilities": "Housing & Utilities",
+    "healthcare": "Healthcare",
+    "taxBenefits": "Tax Benefits",
+    "showing": "Showing",
+    "program": "program",
+    "programs": "programs",
+    "noPrograms": "No programs found",
+    "adjustFilters": "Try adjusting your search or filters",
+    "recommendations": "Recommended For You",
+    "recommendationsDesc": "Based on your profile and needs"
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "subtitle": "Manage your account information and preferences",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number (Optional)",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "accountActions": "Account Actions",
+    "updateSuccess": "Profile updated",
+    "updateSuccessDesc": "Your profile has been successfully updated.",
+    "loadError": "Error loading profile",
+    "updateError": "Error updating profile"
+  },
+  "dashboard": {
+    "title": "My Applications",
+    "applications": "Applications",
+    "exportAll": "Export All as PDF",
+    "noApplications": "No applications yet",
+    "getStarted": "Get started by browsing available programs"
+  }
+}

@@ -55,7 +55,21 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          {userNavLinks.map((link) => (
+          <Link
+            to="/"
+            className="text-foreground/80 hover:text-foreground transition-colors font-medium"
+            data-tour="quiz"
+          >
+            Home
+          </Link>
+          <Link
+            to="/programs"
+            className="text-foreground/80 hover:text-foreground transition-colors font-medium"
+            data-tour="programs"
+          >
+            Programs
+          </Link>
+          {userNavLinks.slice(2).map((link) => (
             <Link
               key={link.to}
               to={link.to}
@@ -68,7 +82,9 @@ const Header = () => {
 
         {/* Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
-          <LanguageSwitcher />
+          <div data-tour="language">
+            <LanguageSwitcher />
+          </div>
           {user ? (
             <>
               <NotificationBell />
@@ -80,7 +96,11 @@ const Header = () => {
                 <User className="w-4 h-4" />
                 Profile
               </Button>
-              <Button variant="outline" onClick={() => navigate("/dashboard")}>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate("/dashboard")}
+                data-tour="dashboard"
+              >
                 Dashboard
               </Button>
               <Button variant="outline" onClick={handleSignOut} className="gap-2">

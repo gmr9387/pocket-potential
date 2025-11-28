@@ -14,7 +14,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { CheckCircle, XCircle, Users, FileText, TrendingUp, Plus, Pencil, Trash2, Shield } from "lucide-react";
+import { CheckCircle, XCircle, Users, FileText, TrendingUp, Plus, Pencil, Trash2, Shield, Upload, BarChart3 } from "lucide-react";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line } from "recharts";
 
 interface Application {
   id: string;
@@ -67,6 +69,7 @@ const AdminDashboard = () => {
   const [programDialogOpen, setProgramDialogOpen] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState<"admin" | "moderator" | "user">("user");
+  const [bulkImportFile, setBulkImportFile] = useState<File | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -315,6 +318,81 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleBulkImport = async () => {
+    if (!bulkImportFile) {
+      toast({
+        title: "Error",
+        description: "Please select a CSV file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const text = e.target?.result as string;
+      const lines = text.split("\n");
+      const headers = lines[0].split(",").map(h => h.trim());
+      
+      const programsToImport = [];
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        const values = lines[i].split(",").map(v => v.trim());
+        const program: any = {};
+        headers.forEach((header, index) => {
+          program[header] = values[index];
+        });
+        programsToImport.push({
+          title: program.title || "",
+          description: program.description || "",
+          category: program.category || "",
+          amount: program.amount || "",
+          timeline: program.timeline || "",
+          is_active: program.is_active === "true" || program.is_active === "1",
+        });
+      }
+
+      const { error } = await supabase
+        .from("programs")
+        .insert(programsToImport);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to import programs",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: `Imported ${programsToImport.length} programs`,
+        });
+        setBulkImportFile(null);
+        fetchData();
+      }
+    };
+    reader.readAsText(bulkImportFile);
+  };
+
+  // Analytics data
+  const applicationsByStatus = [
+    { status: "Draft", count: applications.filter(a => a.status === "draft").length },
+    { status: "Submitted", count: applications.filter(a => a.status === "submitted").length },
+    { status: "In Review", count: applications.filter(a => a.status === "in_review").length },
+    { status: "Approved", count: applications.filter(a => a.status === "approved").length },
+    { status: "Denied", count: applications.filter(a => a.status === "denied").length },
+  ];
+
+  const programsByCategory = programs.reduce((acc: any[], program) => {
+    const existing = acc.find(item => item.category === program.category);
+    if (existing) {
+      existing.count++;
+    } else {
+      acc.push({ category: program.category, count: 1 });
+    }
+    return acc;
+  }, []);
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
@@ -374,13 +452,105 @@ const AdminDashboard = () => {
             </Card>
           </div>
 
-          <Tabs defaultValue="applications" className="space-y-6">
+          <Tabs defaultValue="analytics" className="space-y-6">
             <TabsList>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
               <TabsTrigger value="applications">Applications</TabsTrigger>
               <TabsTrigger value="stories">Success Stories</TabsTrigger>
               <TabsTrigger value="programs">Programs</TabsTrigger>
               <TabsTrigger value="users">User Roles</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="analytics" className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="w-5 h-5" />
+                      Applications by Status
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      config={{
+                        count: {
+                          label: "Applications",
+                          color: "hsl(var(--primary))",
+                        },
+                      }}
+                      className="h-[300px]"
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={applicationsByStatus}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="status" />
+                          <YAxis />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar dataKey="count" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5" />
+                      Programs by Category
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      config={{
+                        count: {
+                          label: "Programs",
+                          color: "hsl(var(--secondary))",
+                        },
+                      }}
+                      className="h-[300px]"
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={programsByCategory}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="category" />
+                          <YAxis />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Bar dataKey="count" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>System Overview</CardTitle>
+                  <CardDescription>Key metrics and trends</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-primary">{applications.length}</p>
+                      <p className="text-sm text-muted-foreground">Total Applications</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-secondary">{programs.length}</p>
+                      <p className="text-sm text-muted-foreground">Total Programs</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-accent">{stories.filter(s => s.is_approved).length}</p>
+                      <p className="text-sm text-muted-foreground">Approved Stories</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-foreground">{profiles.length}</p>
+                      <p className="text-sm text-muted-foreground">Total Users</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
             <TabsContent value="applications" className="space-y-4">
               {applications.map((app) => (
@@ -457,13 +627,30 @@ const AdminDashboard = () => {
             <TabsContent value="programs" className="space-y-4">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-2xl font-bold">Manage Programs</h2>
-                <Dialog open={programDialogOpen} onOpenChange={setProgramDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button onClick={() => setEditingProgram(null)}>
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Program
+                <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      type="file"
+                      accept=".csv"
+                      onChange={(e) => setBulkImportFile(e.target.files?.[0] || null)}
+                      className="max-w-xs"
+                    />
+                    <Button 
+                      variant="outline" 
+                      onClick={handleBulkImport}
+                      disabled={!bulkImportFile}
+                    >
+                      <Upload className="h-4 w-4 mr-2" />
+                      Import CSV
                     </Button>
-                  </DialogTrigger>
+                  </div>
+                  <Dialog open={programDialogOpen} onOpenChange={setProgramDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button onClick={() => setEditingProgram(null)}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Program
+                      </Button>
+                    </DialogTrigger>
                   <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>{editingProgram ? "Edit Program" : "Add New Program"}</DialogTitle>
@@ -539,6 +726,7 @@ const AdminDashboard = () => {
                     </form>
                   </DialogContent>
                 </Dialog>
+              </div>
               </div>
 
               <div className="grid gap-4">

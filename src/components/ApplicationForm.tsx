@@ -6,9 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { z } from "zod";
 import { trackEvent } from "@/lib/analytics";
+import DocumentOCR from "@/components/DocumentOCR";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const applicationSchema = z.object({
   fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
@@ -29,6 +31,7 @@ const ApplicationForm = ({ programId, programTitle, onSuccess, onCancel }: Appli
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [ocrOpen, setOcrOpen] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -36,6 +39,22 @@ const ApplicationForm = ({ programId, programTitle, onSuccess, onCancel }: Appli
     address: "",
     additionalInfo: "",
   });
+
+  const handleOCRData = (data: {
+    fullName: string | null;
+    email: string | null;
+    phone: string | null;
+    address: string | null;
+  }) => {
+    setFormData((prev) => ({
+      ...prev,
+      fullName: data.fullName || prev.fullName,
+      email: data.email || prev.email,
+      phone: data.phone || prev.phone,
+      address: data.address || prev.address,
+    }));
+    setOcrOpen(false);
+  };
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,6 +132,19 @@ const ApplicationForm = ({ programId, programTitle, onSuccess, onCancel }: Appli
           Fill out the form below to start your application. You can save it as a draft and complete it later.
         </p>
       </div>
+
+      {/* OCR Document Scanner */}
+      <Collapsible open={ocrOpen} onOpenChange={setOcrOpen}>
+        <CollapsibleTrigger asChild>
+          <Button type="button" variant="outline" className="w-full justify-between">
+            <span>📄 Auto-fill from document</span>
+            {ocrOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="pt-4">
+          <DocumentOCR onDataExtracted={handleOCRData} />
+        </CollapsibleContent>
+      </Collapsible>
 
       <div className="space-y-4">
         <div className="space-y-2">

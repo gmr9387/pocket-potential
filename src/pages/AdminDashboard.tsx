@@ -14,9 +14,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { CheckCircle, XCircle, Users, FileText, TrendingUp, Plus, Pencil, Trash2, Shield, Upload, BarChart3 } from "lucide-react";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, LineChart, Line } from "recharts";
+import { CheckCircle, XCircle, Users, FileText, TrendingUp, Plus, Pencil, Trash2, Shield, Upload } from "lucide-react";
+import AdvancedAnalytics from "@/components/AdvancedAnalytics";
 
 interface Application {
   id: string;
@@ -374,24 +373,7 @@ const AdminDashboard = () => {
     reader.readAsText(bulkImportFile);
   };
 
-  // Analytics data
-  const applicationsByStatus = [
-    { status: "Draft", count: applications.filter(a => a.status === "draft").length },
-    { status: "Submitted", count: applications.filter(a => a.status === "submitted").length },
-    { status: "In Review", count: applications.filter(a => a.status === "in_review").length },
-    { status: "Approved", count: applications.filter(a => a.status === "approved").length },
-    { status: "Denied", count: applications.filter(a => a.status === "denied").length },
-  ];
-
-  const programsByCategory = programs.reduce((acc: any[], program) => {
-    const existing = acc.find(item => item.category === program.category);
-    if (existing) {
-      existing.count++;
-    } else {
-      acc.push({ category: program.category, count: 1 });
-    }
-    return acc;
-  }, []);
+  // Analytics data is now handled by AdvancedAnalytics component
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -462,94 +444,12 @@ const AdminDashboard = () => {
             </TabsList>
 
             <TabsContent value="analytics" className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BarChart3 className="w-5 h-5" />
-                      Applications by Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ChartContainer
-                      config={{
-                        count: {
-                          label: "Applications",
-                          color: "hsl(var(--primary))",
-                        },
-                      }}
-                      className="h-[300px]"
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={applicationsByStatus}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="status" />
-                          <YAxis />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Bar dataKey="count" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5" />
-                      Programs by Category
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ChartContainer
-                      config={{
-                        count: {
-                          label: "Programs",
-                          color: "hsl(var(--secondary))",
-                        },
-                      }}
-                      className="h-[300px]"
-                    >
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={programsByCategory}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="category" />
-                          <YAxis />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Bar dataKey="count" fill="hsl(var(--secondary))" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </ChartContainer>
-                  </CardContent>
-                </Card>
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>System Overview</CardTitle>
-                  <CardDescription>Key metrics and trends</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-primary">{applications.length}</p>
-                      <p className="text-sm text-muted-foreground">Total Applications</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-secondary">{programs.length}</p>
-                      <p className="text-sm text-muted-foreground">Total Programs</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-accent">{stories.filter(s => s.is_approved).length}</p>
-                      <p className="text-sm text-muted-foreground">Approved Stories</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-3xl font-bold text-foreground">{profiles.length}</p>
-                      <p className="text-sm text-muted-foreground">Total Users</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <AdvancedAnalytics
+                applications={applications}
+                programs={programs}
+                profiles={profiles}
+                stories={stories}
+              />
             </TabsContent>
 
             <TabsContent value="applications" className="space-y-4">

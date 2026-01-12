@@ -57,6 +57,82 @@ const Dashboard = () => {
     trackPageView('dashboard');
   }, []);
 
+  // Real-time subscription for application updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('applications-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'applications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          console.log('Real-time update:', payload);
+          
+          if (payload.eventType === 'UPDATE') {
+            // Update the specific application in state
+            setApplications((prev) =>
+              prev.map((app) =>
+                app.id === payload.new.id
+                  ? { ...app, status: payload.new.status }
+                  : app
+              )
+            );
+            
+            // Show toast notification for status changes
+            const newStatus = payload.new.status;
+            const oldStatus = payload.old?.status;
+            
+            if (newStatus !== oldStatus) {
+              const statusLabels: Record<string, string> = {
+                approved: '🎉 Your application has been approved!',
+                denied: 'Your application was denied',
+                in_review: 'Your application is now under review',
+                submitted: 'Your application has been submitted',
+              };
+              
+              toast({
+                title: 'Application Updated',
+                description: statusLabels[newStatus] || `Status changed to ${newStatus}`,
+                variant: newStatus === 'approved' ? 'default' : newStatus === 'denied' ? 'destructive' : 'default',
+              });
+            }
+            
+            // Update stats based on the change
+            setStats((prev) => {
+              const wasPending = ['submitted', 'in_review'].includes(oldStatus);
+              const isPending = ['submitted', 'in_review'].includes(newStatus);
+              const wasApproved = oldStatus === 'approved';
+              const isApproved = newStatus === 'approved';
+              
+              return {
+                ...prev,
+                pending: prev.pending + (isPending ? 1 : 0) - (wasPending ? 1 : 0),
+                approved: prev.approved + (isApproved ? 1 : 0) - (wasApproved ? 1 : 0),
+              };
+            });
+          } else if (payload.eventType === 'INSERT') {
+            // Refetch to get the full application with program data
+            fetchApplications(user.id);
+          } else if (payload.eventType === 'DELETE') {
+            setApplications((prev) =>
+              prev.filter((app) => app.id !== payload.old.id)
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, toast]);
+
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {

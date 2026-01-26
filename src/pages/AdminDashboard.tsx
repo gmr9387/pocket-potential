@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AdminChat from "@/components/AdminChat";
 import { CheckCircle, XCircle, Users, FileText, TrendingUp, Plus, Pencil, Trash2, Shield, Upload } from "lucide-react";
 import AdvancedAnalytics from "@/components/AdvancedAnalytics";
 
@@ -748,6 +749,11 @@ const AdminDashboard = () => {
               </Card>
             </TabsContent>
           </Tabs>
+          
+          {/* Live Chat Support */}
+          <div className="mt-8">
+            <AdminChat />
+          </div>
         </div>
       </main>
       <Footer />

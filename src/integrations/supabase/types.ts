@@ -85,6 +85,36 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          admin_id: string | null
+          created_at: string | null
+          id: string
+          is_from_admin: boolean | null
+          is_read: boolean | null
+          message: string
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_from_admin?: boolean | null
+          is_read?: boolean | null
+          message: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_from_admin?: boolean | null
+          is_read?: boolean | null
+          message?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           application_id: string | null
@@ -231,6 +261,33 @@ export type Database = {
           timeline?: string
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string
         }
         Relationships: []
       }

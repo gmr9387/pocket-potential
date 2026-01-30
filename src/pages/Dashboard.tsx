@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { DashboardSkeleton } from "@/components/LoadingSkeleton";
 import { trackPageView } from "@/lib/analytics";
 import { exportApplicationsToPDF, exportSingleApplicationToPDF } from "@/lib/pdfExport";
+import ApplicationDetailsModal from "@/components/ApplicationDetailsModal";
 import {
   FileText,
   CheckCircle2,
@@ -20,14 +21,28 @@ import {
   Download,
 } from "lucide-react";
 
+interface ApplicationData {
+  fullName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  additionalInfo?: string;
+}
+
 interface Application {
   id: string;
   status: string;
   created_at: string;
+  submitted_at?: string | null;
+  reviewed_at?: string | null;
+  notes?: string | null;
+  application_data?: ApplicationData | Record<string, unknown> | null;
   programs: {
     title: string;
     amount: string;
     category: string;
+    description?: string;
+    timeline?: string;
   };
 }
 
@@ -39,11 +54,27 @@ const statusConfig = {
   denied: { label: "Denied", icon: AlertCircle, color: "text-destructive" },
 };
 
+// Helper function to parse amount string to number
+const parseAmountToNumber = (amount: string): number => {
+  // Extract numeric value from strings like "$500/month", "Up to $1,200", "$15,000"
+  const cleaned = amount.replace(/[^0-9.]/g, "");
+  const value = parseFloat(cleaned) || 0;
+  
+  // If it's a monthly amount, multiply by 12
+  if (amount.toLowerCase().includes("/month") || amount.toLowerCase().includes("per month")) {
+    return value * 12;
+  }
+  
+  return value;
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [user, setUser] = useState<any>(null);
   const [applications, setApplications] = useState<Application[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -151,10 +182,16 @@ const Dashboard = () => {
           id,
           status,
           created_at,
+          submitted_at,
+          reviewed_at,
+          notes,
+          application_data,
           programs (
             title,
             amount,
-            category
+            category,
+            description,
+            timeline
           )
         `)
         .eq("user_id", userId)
@@ -162,18 +199,26 @@ const Dashboard = () => {
 
       if (error) throw error;
 
-      setApplications(data || []);
+      // Cast to Application[] - the JSON type from Supabase is compatible at runtime
+      setApplications((data as unknown as Application[]) || []);
       
       // Calculate stats
       const total = data?.length || 0;
       const pending = data?.filter(a => ["submitted", "in_review"].includes(a.status)).length || 0;
-      const approved = data?.filter(a => a.status === "approved").length || 0;
+      const approvedApps = data?.filter(a => a.status === "approved") || [];
+      const approved = approvedApps.length;
+      
+      // Calculate estimated value from approved applications
+      const estimatedValue = approvedApps.reduce((sum, app) => {
+        const amount = app.programs?.amount || "";
+        return sum + parseAmountToNumber(amount);
+      }, 0);
       
       setStats({
         total,
         pending,
         approved,
-        estimatedValue: 8400, // This would be calculated from approved applications
+        estimatedValue,
       });
     } catch (error) {
       toast({
@@ -184,6 +229,11 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewDetails = (application: Application) => {
+    setSelectedApplication(application);
+    setDetailsModalOpen(true);
   };
 
   const getProgressValue = () => {
@@ -364,7 +414,12 @@ const Dashboard = () => {
                             <Download className="w-4 h-4 mr-1" />
                             PDF
                           </Button>
-                          <Button variant="ghost">View Details</Button>
+                          <Button 
+                            variant="ghost"
+                            onClick={() => handleViewDetails(app)}
+                          >
+                            View Details
+                          </Button>
                         </div>
                       </div>
                     </Card>
@@ -376,6 +431,15 @@ const Dashboard = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Application Details Modal */}
+      <ApplicationDetailsModal
+        application={selectedApplication}
+        open={detailsModalOpen}
+        onOpenChange={setDetailsModalOpen}
+        userName={user?.user_metadata?.full_name || "User"}
+        userEmail={user?.email || ""}
+      />
     </div>
   );
 };

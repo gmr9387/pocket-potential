@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { User as SupabaseUser } from "@supabase/supabase-js";
 import NotificationBell from "./NotificationBell";
 import LanguageSwitcher from "./LanguageSwitcher";
+import PrefetchLink from "./PrefetchLink";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,37 +47,37 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center space-x-2">
+        <PrefetchLink to="/" className="flex items-center space-x-2">
           <div className="w-8 h-8 rounded-lg gradient-primary flex items-center justify-center">
             <span className="text-white font-bold text-lg">F</span>
           </div>
           <span className="font-bold text-xl">FundFinder</span>
-        </Link>
+        </PrefetchLink>
 
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          <Link
+          <PrefetchLink
             to="/"
             className="text-foreground/80 hover:text-foreground transition-colors font-medium"
             data-tour="quiz"
           >
             Home
-          </Link>
-          <Link
+          </PrefetchLink>
+          <PrefetchLink
             to="/programs"
             className="text-foreground/80 hover:text-foreground transition-colors font-medium"
             data-tour="programs"
           >
             Programs
-          </Link>
+          </PrefetchLink>
           {userNavLinks.slice(2).map((link) => (
-            <Link
+            <PrefetchLink
               key={link.to}
               to={link.to}
               className="text-foreground/80 hover:text-foreground transition-colors font-medium"
             >
               {link.label}
-            </Link>
+            </PrefetchLink>
           ))}
         </div>
 
@@ -91,6 +92,7 @@ const Header = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate("/profile")}
+                onMouseEnter={() => import("@/pages/Profile")}
                 className="gap-2"
               >
                 <User className="w-4 h-4" />
@@ -99,6 +101,7 @@ const Header = () => {
               <Button 
                 variant="outline" 
                 onClick={() => navigate("/dashboard")}
+                onMouseEnter={() => import("@/pages/Dashboard")}
                 data-tour="dashboard"
               >
                 Dashboard
@@ -110,10 +113,18 @@ const Header = () => {
             </>
           ) : (
             <>
-              <Button variant="ghost" onClick={() => navigate("/auth")}>
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate("/auth")}
+                onMouseEnter={() => import("@/pages/Auth")}
+              >
                 Sign In
               </Button>
-              <Button variant="gradient" onClick={() => navigate("/auth?signup=true")}>
+              <Button 
+                variant="gradient" 
+                onClick={() => navigate("/auth?signup=true")}
+                onMouseEnter={() => import("@/pages/Auth")}
+              >
                 Get Started
               </Button>
             </>
@@ -135,14 +146,14 @@ const Header = () => {
         <div className="md:hidden border-t border-border bg-background animate-fade-in">
           <div className="container mx-auto px-4 py-4 space-y-3">
             {userNavLinks.map((link) => (
-              <Link
+              <PrefetchLink
                 key={link.to}
                 to={link.to}
                 onClick={() => setIsMenuOpen(false)}
                 className="block py-2 text-foreground/80 hover:text-foreground transition-colors font-medium"
               >
                 {link.label}
-              </Link>
+              </PrefetchLink>
             ))}
             <div className="pt-3 space-y-2 border-t border-border">
               {user ? (

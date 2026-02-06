@@ -29,6 +29,7 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 // Lazy load heavy components
 const LiveChat = lazy(() => import("./components/LiveChat"));
 const PWAInstallPrompt = lazy(() => import("./components/PWAInstallPrompt"));
+const ServiceWorkerUpdater = lazy(() => import("./components/ServiceWorkerUpdater"));
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const App = () => (
           <Suspense fallback={null}>
             <LiveChat />
             <PWAInstallPrompt />
+            <ServiceWorkerUpdater />
           </Suspense>
         </BrowserRouter>
       </ErrorBoundary>

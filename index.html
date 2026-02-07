@@ -7,10 +7,19 @@
     <meta name="description" content="Find and claim government benefits designed for you. Match with 146+ programs in housing, food, healthcare, and more. Free personalized matching in under 2 minutes." />
     <link rel="canonical" href="https://fundfinder.lovable.app" />
     <meta name="author" content="FundFinder" />
+    
+    <!-- Preconnect to external origins for faster resource loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Preload critical font (Inter 600 - used in headlines) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Preload hero image for faster LCP -->
+    <link rel="preload" as="image" href="/src/assets/hero-families.jpg" type="image/jpeg" fetchpriority="high">
 
+    <!-- Open Graph / Social -->
     <meta property="og:title" content="FundFinder - Discover Government Assistance Programs" />
     <meta property="og:description" content="Find and claim government benefits designed for you. Billions in aid go unclaimed - let FundFinder help you discover what's yours." />
     <meta property="og:type" content="website" />
@@ -19,6 +28,9 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <!-- DNS prefetch for Supabase -->
+    <link rel="dns-prefetch" href="https://xeaicywcdwscqjwhwhmh.supabase.co">
   </head>
 
   <body>

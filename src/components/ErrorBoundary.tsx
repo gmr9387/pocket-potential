@@ -2,6 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import { reportError } from "@/lib/errorTracking";
 
 interface Props {
   children: ReactNode;
@@ -24,6 +25,8 @@ class ErrorBoundary extends Component<Props, State> {
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("Uncaught error:", error, errorInfo);
+    // Report error to analytics for tracking
+    reportError(error, errorInfo.componentStack || undefined);
   }
 
   private handleReset = () => {

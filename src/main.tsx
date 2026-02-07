@@ -3,8 +3,12 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n/config";
 import { initWebVitals } from "./lib/webVitals";
+import { initGlobalErrorTracking } from "./lib/errorTracking";
 
 createRoot(document.getElementById("root")!).render(<App />);
 
 // Initialize Core Web Vitals monitoring after app renders
 initWebVitals();
+
+// Initialize global error tracking for uncaught errors
+initGlobalErrorTracking();

@@ -95,6 +95,8 @@ const Hero = () => {
                 src={heroImage} 
                 alt="Happy families discovering their benefits"
                 className="w-full h-auto object-cover"
+                fetchPriority="high"
+                decoding="async"
               />
               {/* Floating stat card */}
               <div className="absolute bottom-8 left-8 bg-card/95 backdrop-blur-sm rounded-2xl p-6 shadow-large border border-border/50 animate-fade-in-up">

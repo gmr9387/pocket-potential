@@ -8,6 +8,47 @@
     <link rel="canonical" href="https://fundfinder.lovable.app" />
     <meta name="author" content="FundFinder" />
     
+    <!-- Critical CSS inlined for faster FCP -->
+    <style>
+      /* Critical above-the-fold styles */
+      *,*::before,*::after{box-sizing:border-box;border-width:0;border-style:solid}
+      html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:Inter,system-ui,sans-serif}
+      body{margin:0;line-height:inherit;background-color:hsl(0 0% 100%);color:hsl(222 14% 18%);-webkit-font-smoothing:antialiased}
+      #root{isolation:isolate}
+      h1,h2,h3,h4,h5,h6{font-weight:700;letter-spacing:-0.025em}
+      img,video{max-width:100%;height:auto;display:block}
+      button{cursor:pointer;font:inherit}
+      /* Hero section critical styles */
+      .min-h-screen{min-height:100vh}
+      .flex{display:flex}
+      .items-center{align-items:center}
+      .container{width:100%;margin-left:auto;margin-right:auto;padding-left:1rem;padding-right:1rem}
+      @media(min-width:1024px){.container{max-width:1280px;padding-left:2rem;padding-right:2rem}}
+      .grid{display:grid}
+      @media(min-width:1024px){.lg\\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+      .gap-12{gap:3rem}
+      .space-y-8>:not([hidden])~:not([hidden]){margin-top:2rem}
+      .text-5xl{font-size:3rem;line-height:1}
+      @media(min-width:1024px){.lg\\:text-6xl{font-size:3.75rem}}
+      .font-bold{font-weight:700}
+      .leading-tight{line-height:1.25}
+      .text-gradient-primary{background:linear-gradient(135deg,hsl(221 83% 53%),hsl(173 80% 40%));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+      .rounded-full{border-radius:9999px}
+      .inline-flex{display:inline-flex}
+      .px-4{padding-left:1rem;padding-right:1rem}
+      .py-2{padding-top:0.5rem;padding-bottom:0.5rem}
+      .text-sm{font-size:0.875rem;line-height:1.25rem}
+      .font-medium{font-weight:500}
+      .overflow-hidden{overflow:hidden}
+      .relative{position:relative}
+      .absolute{position:absolute}
+      .inset-0{inset:0}
+      .z-10{z-index:10}
+      /* Loading state */
+      .animate-pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}
+      @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+    </style>
+    
     <!-- Preconnect to external origins for faster resource loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

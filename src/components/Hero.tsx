@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, CheckCircle2, Heart } from "lucide-react";
-import heroImage from "@/assets/hero-families-compressed.webp";
+import heroImage1024 from "@/assets/hero-families-compressed.webp";
+import heroImage768 from "@/assets/hero-families-768w.webp";
+import heroImage512 from "@/assets/hero-families-512w.webp";
 
 const Hero = () => {
   return (
@@ -92,7 +94,9 @@ const Hero = () => {
           <div className="relative lg:block hidden animate-scale-in">
             <div className="relative rounded-3xl overflow-hidden shadow-large">
               <img 
-                src={heroImage} 
+                src={heroImage1024} 
+                srcSet={`${heroImage512} 512w, ${heroImage768} 768w, ${heroImage1024} 1024w`}
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 alt="Happy families discovering their benefits"
                 className="w-full h-auto object-cover"
                 fetchPriority="high"

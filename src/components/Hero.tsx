@@ -90,13 +90,13 @@ const Hero = () => {
             </div>
           </div>
 
-          {/* Right image */}
-          <div className="relative lg:block hidden animate-scale-in">
+          {/* Right image - desktop */}
+          <div className="relative hidden lg:block animate-scale-in">
             <div className="relative rounded-3xl overflow-hidden shadow-large">
               <img 
                 src={heroImage1024} 
-                srcSet={`${heroImage512} 512w, ${heroImage768} 768w, ${heroImage1024} 1024w`}
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                srcSet={`${heroImage768} 768w, ${heroImage1024} 1024w`}
+                sizes="50vw"
                 alt="Happy families discovering their benefits"
                 className="w-full h-auto object-cover"
                 fetchPriority="high"
@@ -109,6 +109,30 @@ const Hero = () => {
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   Average benefits discovered
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile hero image */}
+          <div className="relative lg:hidden animate-scale-in">
+            <div className="relative rounded-2xl overflow-hidden shadow-large">
+              <img 
+                src={heroImage512} 
+                srcSet={`${heroImage512} 512w, ${heroImage768} 768w`}
+                sizes="100vw"
+                alt="Happy families discovering their benefits"
+                className="w-full h-48 sm:h-64 object-cover"
+                fetchPriority="high"
+                decoding="async"
+              />
+              {/* Floating stat card - compact for mobile */}
+              <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm rounded-xl p-4 shadow-large border border-border/50">
+                <div className="text-2xl font-bold text-gradient-primary">
+                  $8,400
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Avg. benefits discovered
                 </p>
               </div>
             </div>
